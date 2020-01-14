@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# zsh_inst script
+
+zsh_check() {
+	if command -v zsh > /dev/null 2>&1; then
+		echo "zsh installed."
+		echo
+	else
+		echo "zsh not installed.  installing...."
+		echo
+		apt update > /dev/null 2>&1
+		apt -y install zsh > /dev/null 2>&1
+	fi
+}
+
+oh-my-zsh_check() {
+	if [ -d $HOME/.oh-my-zsh ]; then
+		echo "oh-my-zsh installed."
+		echo
+	else
+		echo "oh-my-zsh not installed.  installing...."
+		echo
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+		echo
+	fi
+}
+
+theme_check() {
+	if [ -f $HOME/.oh-my-zsh/custom/themes/zeroastro.zsh-theme ]; then
+		echo "zeroastro theme installed."
+		echo
+	else
+		echo "zeroastro theme not installed.  installing...."
+		mkdir -p $HOME/.oh-my-zsh/custom/themes/ && \
+		curl -fsSL  https://github.com/zeroastro/zeroastro-zsh-theme/raw/master/zeroastro.zsh-theme -o $HOME/.oh-my-zsh/custom/themes/zeroastro.zsh-theme && \
+		sed -i.bak 's/^[[:space:]]*ZSH_THEME=.*/ZSH_THEME="zeroastro"/' $HOME/.zshrc && \
+		exec zsh
+		echo
+	fi
+}
+
+rc_mods_check() {
+	if grep -q mods-wdatkinson "$HOME/.zshrc"; then
+		echo ".zshrc mods present."
+		echo
+	else
+		echo ".zshrc mods not present.  installing...." $HOME/.zshrc
+		sed -i '1i#mods-wdatkinson' $HOME/.zshrc
+		sed -i '2iHIST_STAMPS="mm/dd/yyyy"' $HOME/.zshrc
+		sed -i '3iHISTFILE=~/.zsh_history' $HOME/.zshrc
+		sed -i '4iHISTSIZE=10000' $HOME/.zshrc
+		sed -i '5iSAVEHIST=10000' $HOME/.zshrc
+		sed -i '6isetopt appendhistory' $HOME/.zshrc
+		sed -i '6G' $HOME/.zshrc
+		echo
+	fi
+}
+
+#main
+clear
+zsh_check
+oh-my-zsh_check
+theme_check
+rc_mods_check
